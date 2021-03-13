@@ -1,9 +1,40 @@
 const express = require('express');
-const app = express()
+
+const cors = require('cors');
+const cheerio = require('cheerio');
+const axios = require('axios');
+
+// config
 const port = 3000
 
-app.get('/', (req, res)=> {
-    res.send('Hello World!');
+const app = express()
+
+const getHTML = async () => {
+    try {
+        return await axios.get("http://ncov.mohw.go.kr/");
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+app.get('/', async (req, res)=> {
+    const html = await getHTML();
+    const $ = cheerio.load(html.data);
+    let parentTag = $("div.liveNum ul.liveNum li");
+    let resultArr = [];
+    parentTag.each(function (i, elem) {
+        let itemObj = {
+            text: $(this).find("strong").text(),
+            num: $(this).find("span").text(),
+        };
+        resultArr.push(itemObj);
+    });
+
+    resultArr.forEach((elem) => {
+        console.log(`현재 ${elem._text}의 현황 : ${elem._num}`);
+    });
+
+    res.send(resultArr);
 })
 
 app.listen(port, ()=> {
