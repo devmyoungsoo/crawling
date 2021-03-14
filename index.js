@@ -30,10 +30,6 @@ app.get('/', async (req, res)=> {
         resultArr.push(itemObj);
     });
 
-    resultArr.forEach((elem) => {
-        console.log(`현재 ${elem._text}의 현황 : ${elem._num}`);
-    });
-
     res.send(resultArr);
 })
 
